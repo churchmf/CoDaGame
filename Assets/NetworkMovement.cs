@@ -46,7 +46,7 @@ public class NetworkMovement : MonoBehaviour
 
 				bool inAir = (transform.position.y > JumpThreshold);
 				if (wantsToJump && !inAir) {
-						rigidbody.AddForce (0, JumpForce, 0);
+						rigidbody.AddForce (0, JumpForce * GravityDirection, 0);
 				}
 
 				rigidbody.AddTorque (myVelocity);

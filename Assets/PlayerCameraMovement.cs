@@ -8,7 +8,16 @@ public class PlayerCameraMovement : MonoBehaviour
 
 		void FixedUpdate ()
 		{
+				var gravityDir = PlayerObject.GetComponent<NetworkMovement> ().GravityDirection;
 				Vector3 PlayerPOS = PlayerObject.position;
-				transform.position = new Vector3 (PlayerPOS.x + CameraOffset.x, PlayerPOS.y + CameraOffset.y, PlayerPOS.z + CameraOffset.z);
+				transform.position = new Vector3 (PlayerPOS.x + CameraOffset.x, PlayerPOS.y + CameraOffset.y * gravityDir, PlayerPOS.z + CameraOffset.z);
+
+				int cameraRotation = 0;
+				if (gravityDir == -1) {
+						cameraRotation = 180;
+				}
+				transform.rotation = Quaternion.Euler (0, 0, cameraRotation);
+		
+				;
 		}
 }
