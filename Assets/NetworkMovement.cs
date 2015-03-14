@@ -7,13 +7,13 @@ using System.Collections;
 /// </summary>
 public class NetworkMovement : MonoBehaviour
 {
-		public int moveSpeed = 8;
+		public int moveSpeed = 12;
 		public bool haveControl = false;
-		public float JumpThreshold = 0.1f;
-		public float JumpForce = 5;
+		public float JumpThreshold = 1;
+		public float JumpForce = 500;
 		public Vector3 Gravity = new Vector3 (0, -10, 0);
 		public int GravityDirection = 1;
-
+		
 		void FixedUpdate ()
 		{
 				if (haveControl) {
@@ -39,17 +39,23 @@ public class NetworkMovement : MonoBehaviour
 		[RPC]
 		void MovePlayer (float horiz, bool wantsToJump)
 		{
-				Vector3 newVelocity = (transform.forward * -horiz * moveSpeed); // + (transform.forward * vert * moveSpeed);
+				Vector3 newVelocity = (transform.forward * horiz * moveSpeed); // + (transform.forward * vert * moveSpeed);
 				Vector3 myVelocity = rigidbody.velocity;
 				myVelocity.x = newVelocity.x;
 				myVelocity.z = newVelocity.z;
 
-				bool inAir = (transform.position.y > JumpThreshold);
+				Debug.Log (myVelocity);
+
+				bool inAir = (transform.position.y > GravityDirection * JumpThreshold);
 				if (wantsToJump && !inAir) {
-						rigidbody.AddForce (0, JumpForce * GravityDirection, 0);
+						rigidbody.AddForce (0, JumpForce * GravityDirection * rigidbody.mass, 0);
 				}
 
-				rigidbody.AddTorque (myVelocity);
+				if (inAir) {
+						rigidbody.AddForce (myVelocity.z, 0, 0);
+				} else {
+						rigidbody.AddTorque (-myVelocity);
+				}
 				ApplyGravity ();
 		}
 }
