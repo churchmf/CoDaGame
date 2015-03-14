@@ -11,6 +11,8 @@ public class NetworkMovement : MonoBehaviour
 		public bool haveControl = false;
 		public float JumpThreshold = 0.1f;
 		public float JumpForce = 5;
+		public Vector3 Gravity = new Vector3 (0, -10, 0);
+		public int GravityDirection = 1;
 
 		void FixedUpdate ()
 		{
@@ -23,6 +25,15 @@ public class NetworkMovement : MonoBehaviour
 								networkView.RPC ("MovePlayer", RPCMode.Server, horiz, wantsToJump);
 						}
 				}
+		}
+
+		void ApplyGravity ()
+		{
+				if (Physics.Raycast (transform.position, Vector3.up)) {
+						GravityDirection = -1;
+				}
+
+				rigidbody.AddForce (GravityDirection * Gravity * rigidbody.mass);
 		}
 
 		[RPC]
@@ -39,8 +50,6 @@ public class NetworkMovement : MonoBehaviour
 				}
 
 				rigidbody.AddTorque (myVelocity);
-
-				// Lock Z axis
-				//transform.position = new Vector3 (transform.position.x, transform.position.y, 0);
+				ApplyGravity ();
 		}
 }
