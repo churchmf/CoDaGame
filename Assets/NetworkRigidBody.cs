@@ -4,7 +4,7 @@ using System.Collections;
 //https://github.com/anchan828/unity-network-sample/blob/master/Assets/Scripts/Networking%20Scripts/NetworkRigidbody.cs
 public class NetworkRigidBody : MonoBehaviour
 {
-		public double m_InterpolationBackTime = 0.1;
+		public double m_InterpolationBackTime = -0.1;
 		public double m_ExtrapolationLimit = 0.5;
 	
 		internal struct State
@@ -16,8 +16,8 @@ public class NetworkRigidBody : MonoBehaviour
 				internal Vector3 angularVelocity;
 		}
 	
-		// We store twenty states with "playback" information
-		State[] m_BufferedState = new State[20];
+		// We store states with "playback" information
+		State[] m_BufferedState = new State[10];
 		// Keep track of what slots are used
 		int m_TimestampCount;
 
@@ -45,7 +45,7 @@ public class NetworkRigidBody : MonoBehaviour
 						stream.Serialize (ref rot);
 						stream.Serialize (ref angularVelocity);
 			
-						// Shift the buffer sideways, deleting state 20
+						// Shift the buffer sideways, deleting last state
 						for (int i = m_BufferedState.Length - 1; i >= 1; i--) {
 								m_BufferedState [i] = m_BufferedState [i - 1];
 						}

@@ -27,7 +27,13 @@ public class NetworkManager : MonoBehaviour
 		[RPC]
 		void MakePlayer (NetworkPlayer thisPlayer)
 		{
-				Transform newPlayer = Network.Instantiate (playerPrefab, playerPrefab.position, playerPrefab.rotation, 0) as Transform;
+				var spawnPosition = playerPrefab.position;
+				// if the client is making a player, start them on the bottom
+				if (thisPlayer != Network.player) {
+						spawnPosition = new Vector3 (playerPrefab.position.x, -1 * playerPrefab.position.y, playerPrefab.position.z);
+				}
+
+				Transform newPlayer = Network.Instantiate (playerPrefab, spawnPosition, playerPrefab.rotation, 0) as Transform;
 				
 				if (thisPlayer != Network.player) {
 						networkView.RPC ("EnableCamera", thisPlayer, newPlayer.networkView.viewID);
