@@ -9,44 +9,46 @@ using System.Collections;
 /// </summary>
 public class NetworkManager : MonoBehaviour
 {
-	public Transform playerPrefab;
+		public Transform playerPrefab;
+		public Transform cameraPrefab;
 
-	void OnServerInitialized ()
-	{ 
-		if (Network.isServer) {
-			MakePlayer (Network.player);
+		void OnServerInitialized ()
+		{ 
+				if (Network.isServer) {
+						MakePlayer (Network.player);
+				}
 		}
-	}
 	
-	void OnConnectedToServer ()
-	{
-		networkView.RPC ("MakePlayer", RPCMode.Server, Network.player);
-	}
+		void OnConnectedToServer ()
+		{
+				networkView.RPC ("MakePlayer", RPCMode.Server, Network.player);
+		}
 
-	[RPC]
-	void MakePlayer (NetworkPlayer thisPlayer)
-	{
-		Transform newPlayer = Network.Instantiate (playerPrefab, playerPrefab.position, playerPrefab.rotation, 0) as Transform;
+		[RPC]
+		void MakePlayer (NetworkPlayer thisPlayer)
+		{
+				Transform newPlayer = Network.Instantiate (playerPrefab, playerPrefab.position, playerPrefab.rotation, 0) as Transform;
 				
-		if (thisPlayer != Network.player) {
-			networkView.RPC ("EnableCamera", thisPlayer, newPlayer.networkView.viewID);
-		} else {
-			EnableCamera (newPlayer.networkView.viewID);
+				if (thisPlayer != Network.player) {
+						networkView.RPC ("EnableCamera", thisPlayer, newPlayer.networkView.viewID);
+				} else {
+						EnableCamera (newPlayer.networkView.viewID);
+				}
 		}
-	}
 	
-	[RPC]
-	void EnableCamera (NetworkViewID viewID)
-	{
-		GameObject[] players = GameObject.FindGameObjectsWithTag ("Player");
-		foreach (GameObject playerObject in players) {
-			if (playerObject.networkView && playerObject.networkView.viewID == viewID) {
-				playerObject.GetComponent<NetworkMovement> ().haveControl = true;
-				Transform myCamera = playerObject.transform.Find ("Camera");
-				myCamera.camera.enabled = true;
-				myCamera.camera.GetComponent<AudioListener> ().enabled = true;
-				break;
-			}
+		[RPC]
+		void EnableCamera (NetworkViewID viewID)
+		{
+				GameObject[] players = GameObject.FindGameObjectsWithTag ("Player");
+				foreach (GameObject playerObject in players) {
+						if (playerObject.networkView && playerObject.networkView.viewID == viewID) {
+								playerObject.GetComponent<NetworkMovement> ().haveControl = true;
+								Transform myCamera = Network.Instantiate (cameraPrefab, playerPrefab.position, playerPrefab.rotation, 0) as Transform;
+								myCamera.camera.enabled = true;
+								myCamera.camera.GetComponent<PlayerCameraMovement> ().PlayerObject = playerObject.transform;
+								myCamera.camera.GetComponent<AudioListener> ().enabled = true;
+								break;
+						}
+				}
 		}
-	}
 }
